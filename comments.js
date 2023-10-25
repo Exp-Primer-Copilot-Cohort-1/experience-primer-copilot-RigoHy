@@ -1,41 +1,53 @@
-const express = require("express");
-const app = express();
-const port = 3000;
+// Create web server
+// Start server: $ node comments.js
+// Test: http://localhost:3000/comments
 
-app.set("view engine", "ejs"); // Usaremos el motor de vistas EJS
+var http = require('http');
+var url = require('url');
 
-// Rutas para diferentes páginas
-app.get("/", (req, res) => {
-  res.render("index", { title: "Página de Inicio" });
+var items = [];
+
+var server = http.createServer(function(req, res){
+    switch (req.method){
+        case 'POST':
+            var item = '';
+            req.setEncoding('utf8');
+            req.on('data', function(chunk){
+                item += chunk;
+            });
+            req.on('end', function(){
+                items.push(item);
+                res.end('OK\n');
+            });
+            break;
+        case 'GET':
+            // items.forEach(function(item, i){
+            //     res.write(i + ') ' + item + '\n');
+            // });
+            // res.end();
+            var body = items.map(function(item, i){
+                return i + ') ' + item;
+            }).join('\n');
+            res.setHeader('Content-Length', Buffer.byteLength(body));
+            res.setHeader('Content-Type', 'text/plain; charset="utf-8"');
+            res.end(body);
+            break;
+        case 'DELETE':
+            var path = url.parse(req.url).pathname;
+            var i = parseInt(path.slice(1), 10);
+
+            if (isNaN(i)){
+                res.statusCode = 400;
+                res.end('Invalid item id');
+            } else if (!items[i]){
+                res.statusCode = 404;
+                res.end('Item not found');
+            } else {
+                items.splice(i, 1);
+                res.end('OK\n');
+            }
+            break;
+    }
 });
 
-app.get("/about", (req, res) => {
-  res.render("about", { title: "Acerca de Nosotros" });
-});
-
-app.get("/contact", (req, res) => {
-  res.render("contact", { title: "Página de Contacto" });
-});
-
-app.get("/help", (req, res) => {
-  res.render("help", { title: "Página de Ayuda" });
-});
-
-app.get("/help/:topic", (req, res) => {
-  const topic = req.params.topic;
-  res.render("help-topic", { title: `Ayuda: ${topic}`, topic });
-});
-
-app.get("/help/:topic/:subtopic", (req, res) => {
-  const topic = req.params.topic;
-  const subtopic = req.params.subtopic;
-  res.render("help-subtopic", {
-    title: `Ayuda: ${topic} - ${subtopic}`,
-    topic,
-    subtopic,
-  });
-});
-
-app.listen(port, () => {
-  console.log(`El servidor está en funcionamiento en el puerto ${port}`);
-});
+server.listen(3000);
