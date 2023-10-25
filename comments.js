@@ -1,66 +1,41 @@
-// Create web server
-// Start web server
-// http://localhost:3000
-// http://localhost:3000/about
-// http://localhost:3000/contact
-// http://localhost:3000/help
-
 const express = require("express");
 const app = express();
 const port = 3000;
 
-// app.get("/", (req, res) => {
-//   res.send("Hello World");
-// });
+app.set("view engine", "ejs"); // Usaremos el motor de vistas EJS
 
-// app.get("/about", (req, res) => {
-//   res.send("About page");
-// });
-
-// app.get("/contact", (req, res) => {
-//   res.send("Contact page");
-// });
-
-// app.get("/help", (req, res) => {
-//   res.send("Help page");
-// });
-
-// app.get("/help/:topic", (req, res) => {
-//   res.send(`Help page ${req.params.topic}`);
-// });
-
-// app.get("/help/:topic/:subtopic", (req, res) => {
-//   res.send(
-//     `Help page ${req.params.topic} ${req.params.subtopic}`
-//   );
-// });
-
+// Rutas para diferentes páginas
 app.get("/", (req, res) => {
-  res.send("<h1>Hello World</h1>");
+  res.render("index", { title: "Página de Inicio" });
 });
 
 app.get("/about", (req, res) => {
-  res.send("<h1>About page</h1>");
+  res.render("about", { title: "Acerca de Nosotros" });
 });
 
 app.get("/contact", (req, res) => {
-  res.send("<h1>Contact page</h1>");
+  res.render("contact", { title: "Página de Contacto" });
 });
 
 app.get("/help", (req, res) => {
-  res.send("<h1>Help page</h1>");
+  res.render("help", { title: "Página de Ayuda" });
 });
 
 app.get("/help/:topic", (req, res) => {
-  res.send(`<h1>Help page ${req.params.topic}</h1>`);
+  const topic = req.params.topic;
+  res.render("help-topic", { title: `Ayuda: ${topic}`, topic });
 });
 
 app.get("/help/:topic/:subtopic", (req, res) => {
-  res.send(
-    `<h1>Help page ${req.params.topic} ${req.params.subtopic}</h1>`
-  );
+  const topic = req.params.topic;
+  const subtopic = req.params.subtopic;
+  res.render("help-subtopic", {
+    title: `Ayuda: ${topic} - ${subtopic}`,
+    topic,
+    subtopic,
+  });
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`El servidor está en funcionamiento en el puerto ${port}`);
 });
